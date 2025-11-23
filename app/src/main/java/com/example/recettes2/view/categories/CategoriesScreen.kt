@@ -1,30 +1,77 @@
 package com.example.recettes2.view.categories
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.recettes2.modelview.CategoryViewModel
 import com.example.recettes2.view.Screen
 
 @Composable
 fun CategoriesScreen(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
 
-        Text("Écran des catégories", style = MaterialTheme.typography.titleLarge)
+    val viewModel = remember { CategoryViewModel() }
 
-        Spacer(modifier = Modifier.height(20.dp))
+    val categories by viewModel.categories
+    val loading by viewModel.loading
+    val error by viewModel.error
 
-        Button(onClick = {
-            navController.navigate(Screen.Recettes.createRoute("Seafood"))
-        }) {
-            Text("Voir Recettes (démo)")
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        Text(
+            "Catégories",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        when {
+            loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            error != null -> {
+                Text("Erreur : $error", color = MaterialTheme.colorScheme.error)
+            }
+
+            else -> {
+                LazyColumn {
+                    items(categories) { category ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate(Screen.Recettes.createRoute(category.strCategory))
+                                }
+                                .padding(12.dp)
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(category.strCategoryThumb),
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Text(
+                                category.strCategory,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
