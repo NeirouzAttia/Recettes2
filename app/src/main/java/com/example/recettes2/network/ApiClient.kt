@@ -1,5 +1,6 @@
 package com.example.recettes2.network
 
+import com.example.recettes2.model.Category
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
@@ -16,19 +17,11 @@ object ApiClient {
         }
     }
 
-    // ---- Réponse de l’API pour les catégories ----
     @Serializable
-    data class CategoriesResponse(val categories: List<Category>)
-
-    @Serializable
-    data class Category(
-        val idCategory: String,
-        val strCategory: String,
-        val strCategoryThumb: String,
-        val strCategoryDescription: String
+    data class CategoriesResponse(
+        val categories: List<Category>
     )
 
-    // ---- Récupérer toutes les catégories ----
     suspend fun getCategories(): List<Category> {
         val response: CategoriesResponse =
             client.get("https://www.themealdb.com/api/json/v1/1/categories.php").body()
