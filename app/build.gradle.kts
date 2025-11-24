@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
+    id("org.jetbrains.kotlin.kapt")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
@@ -69,4 +70,8 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.7")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 }
