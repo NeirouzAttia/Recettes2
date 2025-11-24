@@ -7,12 +7,12 @@ class FavoriteRepository(private val dao: FavoriteDao) {
 
     val favorites = dao.getFavorites()
 
-    suspend fun addFavorite(recette: FavoriteRecette) {
-        dao.addFavorite(recette)
+    suspend fun addFavorite(fav: FavoriteRecette) {
+        dao.addFavorite(fav)
     }
 
-    suspend fun removeFavorite(recette: FavoriteRecette) {
-        dao.removeFavorite(recette)
+    suspend fun removeFavorite(fav: FavoriteRecette) {
+        dao.removeFavorite(fav)
     }
 
     suspend fun isFavorite(id: String): Boolean {

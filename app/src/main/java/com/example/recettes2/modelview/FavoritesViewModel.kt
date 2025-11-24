@@ -16,9 +16,9 @@ class FavoritesViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = FavoriteRepository(dao)
 
     val favorites = repo.favorites.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        emptyList()
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
     )
 
     fun toggleFavorite(recette: FavoriteRecette) {
@@ -28,6 +28,11 @@ class FavoritesViewModel(app: Application) : AndroidViewModel(app) {
             } else {
                 repo.addFavorite(recette)
             }
+        }
+    }
+    fun removeFavorite(recette: FavoriteRecette) {
+        viewModelScope.launch {
+            repo.removeFavorite(recette)
         }
     }
 }

@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.example.recettes2.view.Screen
 import com.example.recettes2.view.categories.CategoriesScreen
 import com.example.recettes2.view.detail.RecetteDetailScreen
+import com.example.recettes2.view.favorites.FavoritesScreen
 import com.example.recettes2.view.recettes.RecettesScreen
 
 @Composable
@@ -43,5 +44,10 @@ fun RecettesApp() {
             val id = backStackEntry.arguments?.getString("mealId") ?: ""
             RecetteDetailScreen(id)
         }
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(navController)
+        }
+
+
     }
 }

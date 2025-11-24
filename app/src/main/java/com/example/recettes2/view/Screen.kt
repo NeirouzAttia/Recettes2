@@ -15,4 +15,6 @@ sealed class Screen(val route: String) {
             return "recetteDetail/$mealId"
         }
     }
+    object Favorites : Screen("favorites")
+
 }
