@@ -1,19 +1,21 @@
 package com.example.recettes2.view.recettes
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
-import androidx.compose.material3.Card
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.recettes2.model.FavoriteRecette
+import com.example.recettes2.modelview.FavoritesViewModel
 import com.example.recettes2.modelview.RecettesViewModel
 import com.example.recettes2.view.Screen
 
@@ -23,29 +25,63 @@ fun RecettesScreen(
     category: String
 ) {
     val vm: RecettesViewModel = viewModel()
+    val favVm: FavoritesViewModel = viewModel()
 
     LaunchedEffect(category) {
         vm.loadRecettes(category)
     }
 
+    val recettes by vm.recettes
+    val favorites by favVm.favorites.collectAsState()
+
     LazyColumn {
-        items(vm.recettes.value) { recette ->
+        items(recettes) { recette ->
+
+            val isFavorite = favorites.any { it.idMeal == recette.idMeal }
+
             Card(
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth()
-                    .clickable {
-                        navController.navigate(Screen.RecetteDetail.route + "/${recette.idMeal}")
-                    }
             ) {
-                Row(modifier = Modifier.padding(12.dp)) {
-                    AsyncImage(
-                        model = recette.strMealThumb,
-                        contentDescription = recette.strMeal,
-                        modifier = Modifier.size(80.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(text = recette.strMeal)
+                Row(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Row(Modifier.weight(1f).clickable {
+                        navController.navigate(Screen.RecetteDetail.route + "/${recette.idMeal}")
+                    }) {
+                        AsyncImage(
+                            model = recette.strMealThumb,
+                            contentDescription = recette.strMeal,
+                            modifier = Modifier.size(80.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Text(text = recette.strMeal)
+                    }
+
+                    // ❤️ Bouton favori
+                    IconButton(
+                        onClick = {
+                            val fav = FavoriteRecette(
+                                idMeal = recette.idMeal,
+                                strMeal = recette.strMeal,
+                                strMealThumb = recette.strMealThumb
+                            )
+                            favVm.toggleFavorite(fav)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favori",
+                            tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
