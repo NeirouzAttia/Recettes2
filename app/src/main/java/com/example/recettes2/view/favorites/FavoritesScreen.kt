@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,18 +19,42 @@ import com.example.recettes2.view.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(navController: NavController? = null) {
+fun FavoritesScreen(navController: NavController) {
 
     val favVm: FavoritesViewModel = viewModel()
     val favorites by favVm.favorites.collectAsState()
 
+    var searchText by remember { mutableStateOf("") }
+
+    val filteredFavorites = favorites.filter {
+        it.strMeal.contains(searchText, ignoreCase = true)
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Mes Favoris ❤️") })
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Mes Favoris ❤️")
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = { searchText = it },
+                            placeholder = { Text("Rechercher une recette...") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                }
+            )
         }
     ) { paddingValues ->
 
-        if (favorites.isEmpty()) {
+        if (filteredFavorites.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -41,15 +66,19 @@ fun FavoritesScreen(navController: NavController? = null) {
             return@Scaffold
         }
 
-        LazyColumn(modifier = Modifier.padding(paddingValues)) {
-            items(favorites) { fav ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            items(filteredFavorites) { fav ->
 
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth()
                         .clickable {
-                            navController?.navigate(Screen.RecetteDetail.route + "/${fav.idMeal}")
+                            navController.navigate(Screen.RecetteDetail.route + "/${fav.idMeal}")
                         }
                 ) {
                     Row(

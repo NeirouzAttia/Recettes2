@@ -3,6 +3,8 @@ package com.example.recettes2.view.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,8 +13,12 @@ import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recettes2.modelview.RecetteDetailViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecetteDetailScreen(mealId: String) {
+fun RecetteDetailScreen(
+    mealId: String,
+    onBack: () -> Unit = {}
+) {
 
     val vm: RecetteDetailViewModel = viewModel()
 
@@ -24,67 +30,86 @@ fun RecetteDetailScreen(mealId: String) {
     val loading = vm.loading.value
     val error = vm.error.value
 
-    when {
-        loading -> {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-
-        error != null -> {
-            Text(
-                "Erreur : $error",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Détail de la recette") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                }
             )
         }
+    ) { paddingValues ->
 
-        recette != null -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ) {
+        when {
+            loading -> {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
-                AsyncImage(
-                    model = recette.strMealThumb,
-                    contentDescription = recette.strMeal,
+            error != null -> {
+                Text(
+                    "Erreur : $error",
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
+                        .padding(16.dp)
+                        .padding(paddingValues)
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            recette != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                ) {
 
-                Text(
-                    recette.strMeal,
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                    AsyncImage(
+                        model = recette.strMealThumb,
+                        contentDescription = recette.strMeal,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Catégorie : ${recette.strCategory}")
-                Text("Origine : ${recette.strArea}")
+                    Text(
+                        recette.strMeal,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    "Instructions :",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    Text("Catégorie : ${recette.strCategory}")
+                    Text("Origine : ${recette.strArea}")
 
-                Text(recette.strInstructions ?: "Aucune instruction")
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        "Instructions :",
+                        style = MaterialTheme.typography.titleMedium
+                    )
 
-                Button(onClick = {
-                    // OUVRIR YOUTUBE ?
-                }) {
-                    Text("Voir la vidéo YouTube")
+                    Text(recette.strInstructions ?: "Aucune instruction")
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(onClick = {
+                        // TODO: ouvrir la vidéo YouTube
+                    }) {
+                        Text("Voir la vidéo YouTube")
+                    }
                 }
             }
         }
